@@ -44,7 +44,7 @@ class Player(GameSprite):
 
 
 font.init()
-font = font.Font(None, 35)
+font = font.SysFont("Arial", 50)
 lose1 = font.render('PLAYER 1 LOSE!', True, (180, 0, 0))
 lose2 = font.render('PLAYER 2 LOSE!', True, (180, 0, 0))
 player = Player("player.png", 10, 200, 25, 150, 150)
