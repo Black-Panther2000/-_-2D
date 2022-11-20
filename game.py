@@ -8,8 +8,8 @@ window = display.set_mode((win_width, win_height))
 display.set_caption('Пинг-понг')
 background = transform.scale(image.load('fon.jpg'), (win_width, win_height))
 
-speed_x = 10
-speed_y = 10
+speed_x = 3
+speed_y = 3
 
 class GameSprite(sprite.Sprite):
     def __init__(self, player_image, player_x, player_y, player_speed, plaeyr_width, player_height):
@@ -24,36 +24,32 @@ class GameSprite(sprite.Sprite):
         window.blit(self.image, (self.rect.x, self.rect.y))
 
 class Player(GameSprite):
-   def update(self):
-        keys_pressed = key.get_pressed()
-        if keys_pressed[K_w] and self.rect.y > 5 :
-            self.rect.y -= self.speed
-        if keys_pressed[K_s] and self.rect.y < 400:
-            self.rect.y += self.speed
-        
+   def update_r(self):
+       keys = key.get_pressed()
+       if keys[K_UP] and self.rect.y > 5:
+           self.rect.y -= self.speed
+       if keys[K_DOWN] and self.rect.y < win_height - 80:
+           self.rect.y += self.speed
+   def update_l(self):
+       keys = key.get_pressed()
+       if keys[K_w] and self.rect.y > 5:
+           self.rect.y -= self.speed
+       if keys[K_s] and self.rect.y < win_height - 80:
+           self.rect.y += self.speed
 
 
 
-class Enemy(GameSprite):
-    def update(self):
-        keys_pressed = key.get_pressed()
-        if keys_pressed[K_UP] and self.rect.y > 5 :
-            self.rect.y -= self.speed
-        if keys_pressed[K_DOWN] and self.rect.y < 400:
-            self.rect.y += self.speed
 
 
-class Ball(GameSprite):
-    
-    def update(self):
-        ball.rect.x += speed_x
-        ball.rect.y += speed_y
-        if sprite.collide_rect(player, ball) or sprite.collide_rect(enemy, ball):
-            speed_x *= -1
 
+
+font.init()
+font = font.Font(None, 35)
+lose1 = font.render('PLAYER 1 LOSE!', True, (180, 0, 0))
+lose2 = font.render('PLAYER 2 LOSE!', True, (180, 0, 0))
 player = Player("player.png", 10, 200, 25, 150, 150)
-enemy  = Enemy("enemy.png", 500, 200, 25, 200, 150)
-ball = Ball("ball.png", 350, 250, 15, 45, 25)
+enemy  = Player("enemy.png", 525, 200, 25, 200, 150)
+ball = GameSprite("ball.png", 350, 250, 15, 45, 25)
 
 game = True
 
@@ -71,13 +67,36 @@ while game:
     for e in event.get():
         if e.type == QUIT:
             game = False
-        if finish != True:
-            window.blit(background,(0, 0))
-            player.update()
-            enemy.update()
 
-            player.reset()
-            enemy.reset()
-            ball.reset()
+    if finish != True:
+        window.blit(background,(0, 0))
+        player.update_l()
+        enemy.update_r()
+        ball.rect.x += speed_x
+        ball.rect.y += speed_y
+
+        if sprite.collide_rect(player, ball) or sprite.collide_rect(enemy, ball):
+           speed_x *= -1
+           speed_y *= 1
+
+        if ball.rect.y > win_height-50 or ball.rect.y < 0:
+           speed_y *= -1
+
+        if ball.rect.x < 0:
+           finish = True
+           window.blit(lose1, (200, 200))
+           game_over = True
+
+
+        if ball.rect.x > win_width:
+           finish = True
+           window.blit(lose2, (200, 200))
+           game_over = True   
+
+
+        player.reset()
+        enemy.reset()
+        ball.reset()
+
     display.update()
     clock.tick(FPS)
